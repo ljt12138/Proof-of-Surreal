@@ -4,20 +4,18 @@ lemma grow_trans : ∀ t1 t2 t3 : bintree,
       (t1 ↣ t2) → (t2 ↣ t3) → (t1 ↣ t3) :=
 begin
   intro t1, induction t1,
-  begin intros, apply grow.single_grow end,
+  begin intros, auto_grow end,
   repeat { begin 
     intros t2 t3 H1 H2,
     cases H1, cases H2, 
     have H3 : (t1_a ↣ H2_t'), apply t1_ih, repeat {assumption},
-    try {apply grow.left_grow},
-    try {apply grow.right_grow}, 
-    assumption
+    auto_grow
   end }, 
   intros t2 t3 H1 H2, 
   cases H1, cases H2, 
   have H3 : (t1_a ↣ H2_t1'), apply t1_ih_a, repeat {assumption},
   have H4 : (t1_a_1 ↣ H2_t2'), apply t1_ih_a_1, repeat {assumption},
-  apply grow.full_grow, repeat {assumption}
+  auto_grow
 end
 
 lemma grow_list_exists_one : ∀ (l : list bintree) (t : bintree), (l ↦ t) →
@@ -67,7 +65,7 @@ begin
     have H : h = 1, omega,
     rewrite H, fapply exists.intro, exact ●, 
     split, apply is_branch.single, 
-    split, unfold height, apply grow.single_grow
+    split, unfold height, auto_grow,
   end, 
   repeat { -- left and right
     intros h H1 H2, 
@@ -128,7 +126,7 @@ begin
         have Ht : (1 ≤ height H6_w), apply ge.le, apply height_ge1, 
         have Ht' : max (height H6_w) 1 = height H6_w, apply max_eq_left, assumption, 
         omega,
-      apply grow.full_grow, assumption, apply grow.single_grow,  
+      auto_grow  
     end,
     begin
       intros H4, 
@@ -141,7 +139,7 @@ begin
         have Ht : (1 ≤ height H6_w), apply ge.le, apply height_ge1, 
         have Ht' : max 1 (height H6_w) = height H6_w, apply max_eq_right, assumption,
         omega,
-      apply grow.full_grow, apply grow.single_grow, assumption,
+      auto_grow
     end
   end
 end
