@@ -1,6 +1,7 @@
-import data.list tactic.omega defs single
+import data.list tactic defs single
 
-lemma height_ge1 : ∀ t : tree, height t ≥ 1 :=
+@[simp]
+lemma height_ge1 : ∀ t : bintree, height t ≥ 1 :=
 begin
   intros t, 
   destruct t, 
@@ -9,35 +10,59 @@ begin
   }
 end
 
-lemma height_le1_single : ∀ t : tree, height t ≤ 1 → t = ● :=
+@[simp]
+lemma height_ne0 : ∀ t : bintree, ¬(height t = 0) :=
+begin
+  intros t contra,
+  have ht : height t ≥ 1 := by simp,
+  rewrite contra at ht, cases ht
+end
+
+@[simp]
+lemma height_nle0 : ∀ t : bintree, ¬(height t ≤ 0) := 
+begin
+  intros t contra,
+  have ht : height t = 0, omega, 
+  eapply height_ne0, assumption
+end
+
+meta def pos_height : tactic unit := 
+do
+  tactic.exfalso,
+  tactic.try (
+    do tactic.eapplyc `height_ne0,
+       tactic.assumption
+  ),
+  tactic.try (
+    do tactic.eapplyc `height_nle0,
+       tactic.assumption
+  )
+
+lemma height_le1_single : ∀ t : bintree, height t ≤ 1 → t = ● :=
 begin
   intros t h1, 
-  have h2 : height t ≥ 1, apply height_ge1, 
+  have h2 : height t ≥ 1, simp, 
   have ht : height t = 1, omega, 
   cases t,
   trivial, 
   repeat {
-    unfold height at ht, have ht' : height t = 0, omega, 
-    have ht'' : height t ≥ 1, apply height_ge1, rewrite ht' at ht'', 
-    cases ht''
+    unfold height at ht, have ht' : height t = 0, omega,
+    pos_height, 
   },
   begin
     unfold height at ht, have ht' : max (height t_a) (height t_a_1) = 0, omega, 
     have ht'' : height t_a ≤ max (height t_a) (height t_a_1), apply le_max_left,
     rewrite ht' at ht'', 
-    have ht3 : height t_a ≥ 1, apply height_ge1, 
-    have ht4 : height t_a = 0, omega, 
-    rewrite ht4 at ht3, cases ht3
+    pos_height,
   end
 end
 
-lemma grow_height : ∀ t' t : tree, (t ↣ t') → height t ≤ height t' :=
+lemma grow_height : ∀ t' t : bintree, (t ↣ t') → height t ≤ height t' :=
 begin
   intros t', induction t',
   begin -- single 
     intros, unfold height, 
-    have h : (t = ●), apply single_grow, assumption,
-    rewrite h, unfold height
+    rewrite (single_grow _ a), unfold height
   end,
   begin -- left 
     intros t h1,  
@@ -46,8 +71,7 @@ begin
     begin 
       unfold height, 
       have h2 : (t ↣ t'_a), cases h1, repeat {assumption}, 
-      have h3 : height t ≤ height t'_a, apply t'_ih, assumption, 
-      omega
+      simp, apply t'_ih, assumption
     end,
     repeat {cases h1}, 
   end,
@@ -58,9 +82,8 @@ begin
     cases h1,
     begin
       unfold height, 
-      have h2 : (t ↣ t'_a), cases h1, repeat {assumption},
-      have h3 : height t ≤ height t'_a, apply t'_ih, assumption, 
-      omega
+      have h2 : (t ↣ t'_a), cases h1, repeat {assumption}, 
+      simp, apply t'_ih, assumption
     end,
     cases h1
   end,
@@ -71,9 +94,7 @@ begin
     cases h1, 
     cases h1, 
     begin
-      unfold height, 
-      have h2 : (t_a ↣ t'_a), cases h1, repeat {assumption}, 
-      have h2' : (t_a_1 ↣ t'_a_1), cases h1, repeat {assumption},
+      unfold height, cases h1, 
       have h3 : height t_a ≤ height t'_a, apply t'_ih_a, assumption,
       have h3' : height t_a_1 ≤ height t'_a_1, apply t'_ih_a_1, assumption,
       have h4 : max (height t_a) (height t_a_1) ≤ max (height t'_a) (height t'_a_1), apply max_le_max, repeat {assumption}, 
@@ -82,17 +103,18 @@ begin
   end
 end
 
-lemma iso_height : ∀ t t' : tree, (t = t') → height t = height t' :=
+lemma iso_height : ∀ t t' : bintree, (t = t') → height t = height t' :=
 begin
   intros, rewrite a
 end
 
-lemma height_neq_niso : ∀ t t' : tree, height t ≠ height t' → t ≠ t' :=
+lemma height_neq_niso : ∀ t t' : bintree, height t ≠ height t' → t ≠ t' :=
 begin
   intros, intro contra, apply a, rewrite contra
 end 
 
-def height_bound : list tree → ℕ
+@[simp]
+def height_bound : list bintree → ℕ
 | [] := 1
 | (t :: l) := max (height t) (height_bound l)
 

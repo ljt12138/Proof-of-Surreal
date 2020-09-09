@@ -1,6 +1,6 @@
 import data.list tactic.omega defs single branch
 
-lemma grow_trans : ∀ t1 t2 t3 : tree, 
+lemma grow_trans : ∀ t1 t2 t3 : bintree, 
       (t1 ↣ t2) → (t2 ↣ t3) → (t1 ↣ t3) :=
 begin
   intro t1, induction t1,
@@ -20,7 +20,7 @@ begin
   apply grow.full_grow, repeat {assumption}
 end
 
-lemma grow_list_exists_one : ∀ (l : list tree) (t : tree), (l ↦ t) →
+lemma grow_list_exists_one : ∀ (l : list bintree) (t : bintree), (l ↦ t) →
                            ∃ t', (t' ∈ l) ∧ (t' ↣ t) :=
 begin
   intros l t h,
@@ -57,8 +57,8 @@ begin
   end
 end
 
-lemma kernel_lemma : ∀ (t : tree) (h : ℕ), 
-  h ≥ 1 → h ≤ height t → ∃ b : tree, ⟨b⟩ ∧ h = height b ∧ (b ↣ t) := 
+lemma kernel_lemma : ∀ (t : bintree) (h : ℕ), 
+  h ≥ 1 → h ≤ height t → ∃ b : bintree, ⟨b⟩ ∧ h = height b ∧ (b ↣ t) := 
 begin
   intros t,
   induction t,
@@ -81,7 +81,7 @@ begin
       split, unfold height, apply grow.single_grow    
     end,
     begin -- h ≠ 0, apply induction hypothesis
-      have H3 : ∃ (b : tree), ⟨b⟩ ∧ h.succ = height b ∧ (b↣t_a), 
+      have H3 : ∃ (b : bintree), ⟨b⟩ ∧ h.succ = height b ∧ (b↣t_a), 
         apply t_ih, omega, omega,  
       cases H3, 
       try { 
@@ -120,7 +120,7 @@ begin
     begin
       intros H4, 
       have H5 : h.succ ≥ 1, omega, 
-      have H6 : ∃ (b : tree), ⟨ b ⟩ ∧ h.succ = height b ∧ (b ↣ t_a), 
+      have H6 : ∃ (b : bintree), ⟨ b ⟩ ∧ h.succ = height b ∧ (b ↣ t_a), 
         apply t_ih_a, repeat {assumption},
       cases H6, cases H6_h, cases H6_h_right, existsi (⟦H6_w, ●⟧), 
       split, apply is_branch.left_l, assumption, 
@@ -133,7 +133,7 @@ begin
     begin
       intros H4, 
       have H5 : h.succ ≥ 1, omega, 
-      have H6 : ∃ (b : tree), ⟨ b ⟩ ∧ h.succ = height b ∧ (b ↣ t_a_1), 
+      have H6 : ∃ (b : bintree), ⟨ b ⟩ ∧ h.succ = height b ∧ (b ↣ t_a_1), 
         apply t_ih_a_1, repeat {assumption}, 
       cases H6, cases H6_h, cases H6_h_right, existsi (⟦●, H6_w⟧), 
       split, apply is_branch.right_l, assumption, 

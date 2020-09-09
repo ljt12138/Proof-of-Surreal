@@ -59,7 +59,7 @@ begin
   end,
   begin
     have ht' : height b + (w - height b) = w, omega, 
-    cases (grow_high_tree b h3 (w - height b)),
+    cases (grow_high_bintree b h3 (w - height b)),
     cases h_2.right, 
     have h_2' : height w_1 = w, omega, 
     have h' : _ := h.right w_1 h_2',

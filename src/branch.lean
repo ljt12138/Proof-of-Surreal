@@ -1,6 +1,6 @@
 import data.list algebra.ring tactic.omega defs single height
 
-lemma branch_son : ∀ t s : tree, ⟨ t ⟩ → is_son s t → ⟨ s ⟩ := 
+lemma branch_son : ∀ t s : bintree, ⟨ t ⟩ → is_son s t → ⟨ s ⟩ := 
 begin
   intros t,
   induction t,
@@ -15,7 +15,7 @@ begin
   end
 end
 
-lemma branch_with_two_sons : ∀ b b' : tree, 
+lemma branch_with_two_sons : ∀ b b' : bintree, 
       ⟨⟦b, b'⟧⟩ → b = ● ∨ b' = ● := 
 begin
   intros b b' H1, 
@@ -24,7 +24,7 @@ begin
   begin left, refl end
 end
 
-def gen_link : ℕ → tree
+def gen_link : ℕ → bintree
 | 0 := ● 
 | (nat.succ n) := ⟦●, gen_link n⟧
 
@@ -58,7 +58,7 @@ begin
   apply max_eq_right, assumption
 end
 
-lemma grow_high_tree : ∀ t, ⟨t⟩ → ∀ h, (∃ t', ⟨t'⟩ ∧ (t ↣ t') ∧ height t' = height t + h) := 
+lemma grow_high_bintree : ∀ t, ⟨t⟩ → ∀ h, (∃ t', ⟨t'⟩ ∧ (t ↣ t') ∧ height t' = height t + h) := 
 begin
   intros t a, 
   induction a, 
@@ -91,7 +91,7 @@ begin
   end
 end
 
-lemma branch_grow : ∀ b b' : tree, ⟨ b ⟩ → (b' ↣ b) → ⟨ b' ⟩ := 
+lemma branch_grow : ∀ b b' : bintree, ⟨ b ⟩ → (b' ↣ b) → ⟨ b' ⟩ := 
 begin
   intro b,
   induction b,
@@ -150,7 +150,7 @@ begin
   end
 end 
 
-lemma branch_prefix : ∀ b t t' : tree, ⟨b⟩ → (t ↣ b) → (t' ↣ b) 
+lemma branch_prefix : ∀ b t t' : bintree, ⟨b⟩ → (t ↣ b) → (t' ↣ b) 
                                  → (height t ≤ height t') → (t ↣ t') := 
 begin
   intros b, 
@@ -167,10 +167,7 @@ begin
     begin 
       cases h3, 
       begin 
-        unfold height at h4, 
-        have ht : height t ≥ 1, apply height_ge1, exfalso, 
-        have ht' : height t = 0, omega, 
-        rewrite ht' at ht, cases ht
+        unfold height at h4, simp at h4, exfalso, exact h4
       end,
       begin
         cases h2, 
@@ -193,16 +190,13 @@ begin
     begin 
       cases h3, 
       begin
-        unfold height at h4, 
-        have ht : height t ≥ 1, apply height_ge1, exfalso, 
-        have ht' : height t = 0, omega, 
-        rewrite ht' at ht, cases ht, 
+        unfold height at h4, simp at h4, 
+        exfalso, exact h4
       end,
       begin
         cases h2, 
         unfold height at h4, 
-        cases h1, 
-        have ht : height t ≤ height h3_t, omega, 
+        cases h1, simp at h4,  
         have ht' : (t ↣ h3_t), apply b_ih, repeat {assumption}, 
         apply grow.right_grow, 
         assumption
@@ -219,9 +213,7 @@ begin
     begin 
       unfold height at h4,
       have ht : height t_a ≤ max (height t_a) (height t_a_1), apply le_max_left,
-      have ht' : height t_a = 0, omega, 
-      have ht'' : height t_a ≥ 1, apply height_ge1, 
-      rewrite ht' at ht'', cases ht''
+      simp at h4, exfalso, exact h4
     end, 
     begin cases h3 end,
     begin cases h3 end,

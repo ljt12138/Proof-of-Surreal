@@ -1,44 +1,44 @@
 import data.list tactic.omega defs single height
 
-def left_tree : list tree → list tree
+def left_bintree : list bintree → list bintree
 | [] := []
-| (t :: l) := ⟦t ∣⟧ :: left_tree l
+| (t :: l) := ⟦t ∣⟧ :: left_bintree l
 
-def right_tree : list tree → list tree
+def right_bintree : list bintree → list bintree
 | [] := []
-| (t :: l) := ⟦∣ t⟧ :: right_tree l
+| (t :: l) := ⟦∣ t⟧ :: right_bintree l
 
-def full_list_tree (t : tree) : list tree → list tree
+def full_list_bintree (t : bintree) : list bintree → list bintree
 | [] := []
-| (t' :: l) := ⟦t, t'⟧ :: (full_list_tree l)
+| (t' :: l) := ⟦t, t'⟧ :: (full_list_bintree l)
 
-def full_list : list tree → list tree → list tree
+def full_list : list bintree → list bintree → list bintree
 | [] := λ l, []
-| (t :: l) := λ l', full_list_tree t l' ++ full_list l l'
+| (t :: l) := λ l', full_list_bintree t l' ++ full_list l l'
 
-lemma left_tree_correct : ∀ l t, t ∈ l → ⟦t ∣⟧ ∈ left_tree l :=
+lemma left_bintree_correct : ∀ l t, t ∈ l → ⟦t ∣⟧ ∈ left_bintree l :=
 begin
   intros l t h, 
   induction l,
   cases h, cases h,
-  begin unfold left_tree, rewrite h, apply list.mem_cons_self end,
+  begin unfold left_bintree, rewrite h, apply list.mem_cons_self end,
   begin 
-    unfold left_tree, apply list.mem_cons_of_mem, apply l_ih, apply h
+    unfold left_bintree, apply list.mem_cons_of_mem, apply l_ih, apply h
   end
 end
 
-lemma right_tree_correct : ∀ l t, t ∈ l → ⟦∣ t⟧ ∈ right_tree l := 
+lemma right_bintree_correct : ∀ l t, t ∈ l → ⟦∣ t⟧ ∈ right_bintree l := 
 begin
   intros l t h, 
   induction l,
   cases h, cases h, 
-  begin unfold right_tree, rewrite h, apply list.mem_cons_self end,
+  begin unfold right_bintree, rewrite h, apply list.mem_cons_self end,
   begin
-    unfold right_tree, apply list.mem_cons_of_mem, apply l_ih, apply h
+    unfold right_bintree, apply list.mem_cons_of_mem, apply l_ih, apply h
   end
 end
 
-lemma full_list_tree_correct : ∀ l t t', t' ∈ l → ⟦t, t'⟧ ∈ full_list_tree t l :=
+lemma full_list_bintree_correct : ∀ l t t', t' ∈ l → ⟦t, t'⟧ ∈ full_list_bintree t l :=
 begin
   intros l,
   induction l,
@@ -46,12 +46,12 @@ begin
   begin
     intros t t' h, 
     cases h, 
-    begin rewrite h, unfold full_list_tree, apply list.mem_cons_self end, 
-    begin unfold full_list_tree, apply list.mem_cons_of_mem, apply l_ih, assumption end,
+    begin rewrite h, unfold full_list_bintree, apply list.mem_cons_self end, 
+    begin unfold full_list_bintree, apply list.mem_cons_of_mem, apply l_ih, assumption end,
   end
 end
 
-lemma full_tree_correct : ∀ l l' t t', t ∈ l → t' ∈ l' → ⟦t, t'⟧ ∈ full_list l l' := 
+lemma full_bintree_correct : ∀ l l' t t', t ∈ l → t' ∈ l' → ⟦t, t'⟧ ∈ full_list l l' := 
 begin
   intros l,
   induction l, 
@@ -65,7 +65,7 @@ begin
     cases h1, 
     begin 
       rewrite h1, apply list.mem_append_left, 
-      apply full_list_tree_correct, assumption 
+      apply full_list_bintree_correct, assumption 
     end,
     begin
       apply list.mem_append_right, 
@@ -76,11 +76,11 @@ begin
 end
 
 
-lemma cross_product_tree : ∀ l : list tree, ∃ l' : list tree, ∀ t t', 
+lemma cross_product_bintree : ∀ l : list bintree, ∃ l' : list bintree, ∀ t t', 
                              t ∈ l → t' ∈ l → ⟦t, t'⟧ ∈ l' ∧ ⟦t ∣⟧ ∈ l' ∧ ⟦∣ t'⟧ ∈ l' :=
 begin
   intros l,
-  have ht : ∃ l', l' = left_tree l ++ right_tree l ++ full_list l l, existsi left_tree l ++ right_tree l ++ full_list l l, refl,
+  have ht : ∃ l', l' = left_bintree l ++ right_bintree l ++ full_list l l, existsi left_bintree l ++ right_bintree l ++ full_list l l, refl,
   cases ht, 
   existsi ht_w, 
   intros t t' h1 h2, 
@@ -88,38 +88,29 @@ begin
   begin -- full 
     rewrite ht_h, 
     apply list.mem_append_right,
-    apply full_tree_correct,
+    apply full_bintree_correct,
     repeat {assumption}
   end,
   split,
   begin -- left
     rewrite ht_h,
     apply list.mem_append_left, apply list.mem_append_left,
-    apply left_tree_correct, assumption
+    apply left_bintree_correct, assumption
   end,
   begin -- right
     rewrite ht_h,
     apply list.mem_append_left, apply list.mem_append_right,
-    apply right_tree_correct, assumption
+    apply right_bintree_correct, assumption
   end
 end
 
-lemma height_zero : ∀ t : tree, ¬(height t ≤ 0) :=
-begin
-  intros t contra, 
-  have ht : height t = 0, omega,
-  have ht' : height t ≥ 1, apply height_ge1,
-  rewrite ht at ht',
-  cases ht'
-end
-
-lemma bounded_height_list : ∀ h : ℕ, ∃ l : list tree, ∀ t : tree, 
+lemma bounded_height_list : ∀ h : ℕ, ∃ l : list bintree, ∀ t : bintree, 
                                         height t ≤ h → t ∈ l :=
 begin
   intros h, induction h,
   begin 
     existsi list.nil, intros t a,
-    exfalso, apply height_zero, repeat {assumption}
+    simp at a, exfalso, exact a
   end,
   begin
     cases h_n, 
@@ -128,23 +119,12 @@ begin
       intros t h,
       cases t, 
       simp, 
-      repeat {
-        unfold height at h, 
-        exfalso, have ht : height t ≤ 0, omega,
-        apply height_zero, repeat {assumption}
-      },
-      unfold height at h, 
-      have ht : max (height t_a) (height t_a_1) = 0, omega, 
-      have ht' : height t_a ≤ max (height t_a) (height t_a_1), apply le_max_left,
-      rewrite ht at ht', 
-      have ht2 : height t_a = 0, omega,
-      have ht3 : height t_a ≥ 1, apply height_ge1, 
-      rewrite ht2 at ht3, cases ht3
+      repeat { simp at h, exfalso, exact h }, 
     end,
     begin
       cases h_ih, 
-      cases (cross_product_tree h_ih_w), 
-      existsi ● :: w, 
+      cases (cross_product_bintree h_ih_w), 
+      existsi (list.cons ● w), 
       intros t ht, 
       cases t, 
       begin apply list.mem_cons_self end,

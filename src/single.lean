@@ -9,7 +9,7 @@ begin
   apply grow.single_grow
 end  
 
-lemma single_grow : ∀ t : tree, (t ↣ ●) → t = ● := 
+lemma single_grow : ∀ t : bintree, (t ↣ ●) → t = ● := 
 begin
   intros t H1,
   destruct t,
