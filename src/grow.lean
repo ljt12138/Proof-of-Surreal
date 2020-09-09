@@ -69,7 +69,7 @@ begin
     split, apply is_branch.single, 
     split, unfold height, apply grow.single_grow
   end, 
-  repeat { begin -- left and right
+  repeat { -- left and right
     intros h H1 H2, 
     cases h, cases H1, unfold height at H2, 
     have H1' : h ≥ 0, omega, 
@@ -97,7 +97,7 @@ begin
         apply grow.right_grow, tauto,
       }
     end
-  end}, 
+  }, 
   intros h H1 H2, -- both left and right, completely similar, while more tedious
   cases h, cases H1, unfold height at H2, 
   have H1' : h ≥ 0, omega,

@@ -93,60 +93,19 @@ end
 
 lemma branch_grow : ∀ b b' : bintree, ⟨ b ⟩ → (b' ↣ b) → ⟨ b' ⟩ := 
 begin
-  intro b,
-  induction b,
-  begin -- single node 
-    intros b H1 H2,
-    cases H2, assumption
-  end,
-  begin -- left branch
-    intros b H1 H2,
-    cases H2, apply is_branch.single,  
-    have H3 : is_son b_a ⟦b_a∣⟧, 
-    apply is_son.left_left,
-    have H4 : is_son H2_t ⟦H2_t∣⟧,
-    apply is_son.left_left,
-    have H5 : ⟨b_a⟩, eapply branch_son, exact H1, assumption, 
-    have H6 : ⟨H2_t⟩, eapply b_ih, repeat { assumption },  
-    apply is_branch.left_nl, assumption,
-  end, 
+  intros b b' h1 h2, 
+  induction h2, 
+  apply is_branch.single, 
+  cases h1, apply is_branch.left_nl, exact h2_ih h1_a,
+  cases h1, apply is_branch.right_nl, exact h2_ih h1_a, 
+  cases h1, 
   begin
-    intros b H1 H2,
-    cases H2, apply is_branch.single,
-    have H3 : is_son b_a ⟦∣ b_a⟧, 
-    apply is_son.right_right,
-    have H4 : is_son H2_t ⟦∣ H2_t⟧, 
-    apply is_son.right_right,
-    have H5 : ⟨b_a⟩, eapply branch_son, exact H1, assumption,
-    have H6 : ⟨H2_t⟩, eapply b_ih, repeat { assumption },
-    apply is_branch.right_nl, assumption
+    rewrite (single_grow _ h2_a_1), 
+    apply is_branch.left_l, exact h2_ih_a h1_a
   end,
   begin
-    intros b H1 H2,
-    cases H2, apply is_branch.single,   
-    have H3  : is_son b_a ⟦b_a, b_a_1⟧, apply is_son.left_full,
-    have H3' : is_son b_a_1 ⟦b_a, b_a_1⟧, apply is_son.right_full,
-    have H4  : is_son H2_t1 ⟦H2_t1, H2_t1⟧, apply is_son.left_full,
-    have H4' : is_son H2_t2 ⟦H2_t1, H2_t2⟧, apply is_son.right_full,
-    have H5  : ⟨b_a⟩, eapply branch_son, exact H1, assumption, 
-    have H5' : ⟨b_a_1⟩, eapply branch_son, exact H1, assumption, 
-    have H6  : ⟨H2_t1⟩, eapply b_ih_a, repeat { assumption },
-    have H6' : ⟨H2_t2⟩, eapply b_ih_a_1, repeat { assumption }, 
-    have H7  : b_a = ● ∨ b_a_1 = ●, 
-      apply branch_with_two_sons, assumption,
-    cases H7, 
-    begin 
-      rewrite H7 at H2_a,
-      have H8 : H2_t1 = ●, apply single_grow, assumption, 
-      rewrite H8, 
-      apply is_branch.right_l, assumption
-    end, 
-    begin 
-      rewrite H7 at H2_a_1, 
-      have H8 : H2_t2 = ●, apply single_grow, assumption, 
-      rewrite H8, 
-      apply is_branch.left_l, assumption, 
-    end
+    rewrite (single_grow _ h2_a),
+    apply is_branch.right_l, exact h2_ih_a_1 h1_a 
   end
 end 
 
